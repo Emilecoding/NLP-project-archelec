@@ -21,7 +21,7 @@ docs = [" ".join(tokens) for tokens in df['tokens']]
 # =========================
 # TF-IDF
 # =========================
-tfidf = TfidfVectorizer(max_features=5000)
+tfidf = TfidfVectorizer(max_features=2000)
 X = tfidf.fit_transform(docs)
 
 # =========================
@@ -46,6 +46,16 @@ party_profiles = df_topics.groupby('famille').mean()
 # DISTANCES
 # =========================
 def kl_divergence(p, q):
+    p = np.array(p, dtype=np.float64)
+    q = np.array(q, dtype=np.float64)
+    
+    epsilon = 1e-10
+    p = p + epsilon
+    q = q + epsilon
+    
+    p = p / p.sum() #normalize
+    q = q / q.sum()
+    
     return entropy(p, q)
 
 def cosine_distance(p, q):

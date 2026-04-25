@@ -41,8 +41,9 @@ def get_famille(soutien):
         return 'Other / Unknown'
     for parti in soutien.split(';'):
         parti = parti.strip()
-        if parti in FAMILLE_POLITIQUE:
-            return FAMILLE_POLITIQUE[parti]
+        for key, famille in FAMILLE_POLITIQUE.items():
+            if key.lower() in parti.lower():  # matching partiel
+                return famille
     return 'Other / Unknown'
 
 # =========================
@@ -81,7 +82,7 @@ def main():
     print("Loading CSV")
     meta = pd.read_csv(CSV_PATH)
 
-    meta['annee'] = pd.to_datetime(meta['date']).dt.year
+    meta['annee'] = pd.to_datetime(meta['date'], errors='coerce').dt.year
     meta = meta[meta['annee'].isin(ELECTIONS)]
 
     print("Loading texts")
@@ -94,6 +95,10 @@ def main():
 
     print("Merging")
     df = meta[meta['id'].isin(texts.keys())].copy()
+    matched = meta['id'].isin(texts.keys())
+    print(f"Documents matchés : {matched.sum()} / {len(meta)}")
+
+
     df['text_raw'] = df['id'].map(texts)
 
     print("Cleaning OCR")
